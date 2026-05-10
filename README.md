@@ -4,25 +4,46 @@
 
 The optimization model avoids unnecessary LLM work. Documentation-only, version-only, and clean revert diffs are formatted locally; small or test-only changes use Gemini Flash; complex or multi-module changes use Gemini Pro; repeated diffs are served from a local MD5 cache. AST parsing is fanned out per file through LangGraph's `Send` API, with raw-diff fallback for unsupported files.
 
+## Prerequisites
+
+Before installing `pr-prep`, ensure you have the following on your system:
+- **Python 3.9+** (or compatible)
+- **Git**
+- **GitHub CLI (`gh`)**: Required to submit the PR to GitHub. (e.g., `brew install gh` on macOS, or `winget install gh` on Windows). Remember to authenticate by running `gh auth login`.
+
 ## Installation
 
+Since `pr-prep` is a CLI tool, you can install it globally so it is available in any repository, or locally for development.
+
+### Option 1: Global Install (Recommended)
+To use the `pr-prep` command in any directory, install it via `pipx` (which isolates dependencies) or globally via `pip`:
+
 ```bash
-pip install -e .
+# Using pipx (recommended for CLI apps)
+pipx install .
+
+# OR using pip (user level)
+pip install --user .
 ```
 
-For development:
+### Option 2: Local / Development Install
+If you are modifying the source code for `pr-prep`, use a virtual environment:
 
 ```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
 ## Setup
 
+To generate PRs, the agent requires a Gemini API key. Make sure it is exported in your terminal profile (e.g., `~/.bashrc` or `~/.zshrc` or Windows Environment Variables):
+
 ```bash
 export GEMINI_API_KEY=your_key
 ```
 
-You can also configure the tool globally at `~/.prprep.toml` or per repository with `.prprep.toml`.
+You can also configure the tool globally via a `~/.prprep.toml` file, or per repository by creating a `.prprep.toml` file located in the root of your target repository.
 
 ## Usage
 
