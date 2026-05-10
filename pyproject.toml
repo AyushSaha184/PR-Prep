@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pr-prep"
+version = "0.1.0"
+description = "AI-powered pull request preparation agent"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "[Your Name]" }]
+dependencies = [
+    "typer[all]>=0.12",
+    "langgraph>=0.2",
+    "langchain-core>=0.2",
+    "gitpython>=3.1",
+    "tree-sitter>=0.23",
+    "tree-sitter-python>=0.23",
+    "tree-sitter-javascript>=0.23",
+    "tree-sitter-typescript>=0.23",
+    "tree-sitter-java>=0.23",
+    "tree-sitter-go>=0.23",
+    "tree-sitter-rust>=0.23",
+    "tree-sitter-cpp>=0.23",
+    "google-generativeai>=0.7",
+    "structlog>=24.1",
+    "rich>=13.7",
+    "toml>=0.10",
+    "pyperclip>=1.9",
+    "tenacity>=8.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.12",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+pr-prep = "pr_prep_agent.main:app"
+
+[tool.setuptools.packages.find]
+include = ["pr_prep_agent*"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true

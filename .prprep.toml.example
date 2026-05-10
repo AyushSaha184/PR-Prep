@@ -1,0 +1,31 @@
+# PR Prep Agent - repo-level config
+# Copy this file to .prprep.toml in your repo root (it is gitignored)
+# Or place it at ~/.prprep.toml for global settings
+
+# --- LLM Settings ---
+# gemini_api_key = "your_key_here"   # Can also be set via GEMINI_API_KEY env var
+# pro_model = "gemini-1.5-pro"       # Model for complex/multi-module diffs
+# flash_model = "gemini-1.5-flash"   # Model for simple diffs
+
+# --- Routing Thresholds ---
+# flash_threshold_lines = 200        # Diffs under this line count use Flash
+# flash_threshold_files = 2          # Diffs touching <= this many files use Flash
+
+# --- Diff Processing ---
+# max_diff_lines = 800               # Diffs over this line count get chunked
+# chunk_size_lines = 200             # Lines kept per file section when chunking
+
+# --- Git Settings ---
+# max_commit_history = 20            # Number of commits to include in context
+# max_past_prs = 5                   # Number of past merged PRs to read for style
+
+# --- GitHub Settings ---
+# base_branch = "main"               # Target branch for gh pr create
+
+# --- Reliability ---
+# retry_attempts = 3                 # Gemini API retry attempts
+# retry_wait = 2.0                   # Base wait in seconds between retries (exponential)
+
+# --- AST Settings ---
+# ast_max_file_size_kb = 500         # Files larger than this skip AST parsing
+

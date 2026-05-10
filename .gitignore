@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+
+# Tool cache
+.prprep/
+**/cache.json
+
+# Repo-level config may contain secrets. Prefer ~/.prprep.toml for API keys.
+.prprep.toml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+.uv-cache/
+.uv-python/
+
+# Type checking
+.mypy_cache/
+.ruff_cache/
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+dist/
+build/
+eggs/
+*.egg
+.eggs/
+*.egg-info/
+
+# Dependency lock files
+uv.lock
+
+# OS
+.DS_Store
+desktop.ini
+Thumbs.db
