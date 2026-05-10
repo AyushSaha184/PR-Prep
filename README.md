@@ -1,12 +1,12 @@
 # PR Prep Agent
 
-`pr-prep` is an AI-powered CLI that prepares GitHub pull requests from staged changes. Run it inside a local Git repository after `git add`; it reads the staged diff, infers intent, generates a title and PR body, surfaces risk flags and reviewer suggestions, lets you review or edit the draft, and can submit the PR through the `gh` CLI.
+PR Prep is an AI-powered CLI that prepares GitHub pull requests from staged changes. Run it inside a local Git repository after `git add`; it reads the staged diff, infers intent, generates a title and PR body, surfaces risk flags and reviewer suggestions, lets you review or edit the draft, and can submit the PR through the `gh` CLI.
 
 The optimization model avoids unnecessary LLM work. Documentation-only, version-only, and clean revert diffs are formatted locally; small or test-only changes use Gemini Flash; complex or multi-module changes use Gemini Pro; repeated diffs are served from a local MD5 cache. AST parsing is fanned out per file through LangGraph's `Send` API, with raw-diff fallback for unsupported files.
 
 ## Prerequisites
 
-Before installing `pr-prep`, ensure you have the following on your system:
+Before installing PR Prep, ensure you have the following on your system:
 - **Python 3.9+** (or compatible)
 - **Git**
 - **GitHub CLI (`gh`)**: Required to submit the PR to GitHub. (e.g., `brew install gh` on macOS, or `winget install gh` on Windows). Remember to authenticate by running `gh auth login`.
