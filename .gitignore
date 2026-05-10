@@ -60,3 +60,5 @@ uv.lock
 .DS_Store
 desktop.ini
 Thumbs.db
+CHANGELOG.md
+CONTRIBUTING.md
