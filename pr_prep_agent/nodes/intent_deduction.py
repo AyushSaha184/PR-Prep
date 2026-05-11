@@ -53,13 +53,13 @@ def _large_diff_path(
 ) -> dict[str, Any]:
     flash = GeminiAdapter(
         api_key=str(config["gemini_api_key"]),
-        model=str(config.get("flash_model", "gemini-1.5-flash")),
+        model=str(config.get("flash_model", "gemini-2.5-flash")),
         retry_attempts=int(config.get("retry_attempts", 3)),
         retry_wait=float(config.get("retry_wait", 2.0)),
     )
     pro = GeminiAdapter(
         api_key=str(config["gemini_api_key"]),
-        model=str(config.get("pro_model", "gemini-1.5-pro")),
+        model=str(config.get("pro_model", "gemini-2.5-pro")),
         retry_attempts=int(config.get("retry_attempts", 3)),
         retry_wait=float(config.get("retry_wait", 2.0)),
     )

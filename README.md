@@ -13,26 +13,27 @@ Before installing PR Prep, ensure you have the following on your system:
 
 ## Installation
 
-Since `pr-prep` is a CLI tool, you can install it globally so it is available in any repository, or locally for development.
+Since `prprep` is a CLI tool, you can install it globally so it is available in any repository, or locally for development.
 
-### Option 1: Global Install (Recommended)
-To use the `pr-prep` command in any directory, install it via `pipx` (which isolates dependencies) or globally via `pip`:
-
-```bash
-# Using pipx (recommended for CLI apps)
-pipx install .
-
-# OR using pip (user level)
-pip install --user .
-```
-
-### Option 2: Local / Development Install
-If you are modifying the source code for `pr-prep`, use a virtual environment:
+### Option 1: Clone and Install
 
 ```bash
+git clone https://github.com/AyushSaha184/PR-Prep.git
+cd PR-Prep
+
+# Standard install
+pip install .
+
+# OR development install
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -e ".[dev]"
+```
+
+### Option 2: Direct Install from GitHub
+
+```bash
+pip install git+https://github.com/AyushSaha184/PR-Prep.git
 ```
 
 ## Setup
@@ -50,16 +51,16 @@ You can also configure the tool globally via a `~/.prprep.toml` file, or per rep
 ```bash
 cd your-repo
 git add .
-pr-prep
+prprep
 ```
 
 Common options:
 
 ```bash
-pr-prep --repo /path/to/repo
-pr-prep --dry-run
-pr-prep --no-clipboard
-pr-prep --clear-cache
+prprep --repo /path/to/repo
+prprep --dry-run
+prprep --no-clipboard
+prprep --clear-cache
 ```
 
 ## Config Example
@@ -98,7 +99,7 @@ Before submission, the generated markdown is shown in the terminal:
 The cache lives at `.prprep/cache.json` inside the target repository and is keyed by the MD5 hash of the staged diff. The directory is added to `.gitignore` on first run. Use this to clear it:
 
 ```bash
-pr-prep --clear-cache
+prprep --clear-cache
 ```
 
 ## Supported AST Languages

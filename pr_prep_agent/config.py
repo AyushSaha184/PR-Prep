@@ -13,8 +13,8 @@ import toml
 @dataclass(frozen=True)
 class Config:
     gemini_api_key: str | None = None
-    flash_model: str = "gemini-1.5-flash"
-    pro_model: str = "gemini-1.5-pro"
+    flash_model: str = "gemini-2.5-flash"
+    pro_model: str = "gemini-2.5-pro"
     max_diff_lines: int = 800
     chunk_size_lines: int = 200
     max_commit_history: int = 20
