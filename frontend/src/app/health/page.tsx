@@ -4,7 +4,7 @@ import { fetchHealth } from '../../lib/api';
 import { MetricsCard } from '../../components/MetricsCard';
 
 export default function HealthPage() {
-  const [health, setHealth] = useState<{ status: string; service: string; version: string } | null>(null);
+  const [health, setHealth] = useState<{ status: string; service?: string; version?: string } | null>(null);
 
   useEffect(() => {
     fetchHealth().then(setHealth);
