@@ -1,0 +1,63 @@
+name: PR Prep CI/CD & Golden Evaluation Gate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    name: Backend Verification & Golden Evaluation Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Ruff Linter & Formatter Check
+        run: |
+          ruff check backend/ tests/
+
+      - name: Run Mypy Static Type Checking
+        run: |
+          mypy backend/ tests/
+
+      - name: Run Pytest Suite & Regression Gate
+        env:
+          ENVIRONMENT: test
+          OPENAI_API_KEY: ci_placeholder_key
+          GITHUB_WEBHOOK_SECRET: ci_placeholder_secret
+          GITHUB_APP_ID: ci_placeholder_app
+        run: |
+          pytest tests/ -v
+
+  frontend:
+    name: Frontend Build & Static Export Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Next.js Application
+        run: |
+          cd frontend
+          npm ci
+          npm run build

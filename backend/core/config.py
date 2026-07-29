@@ -34,9 +34,16 @@ class Settings(BaseSettings):
     GITHUB_WEBHOOK_SECRET: str = Field(default="development_webhook_secret_change_me")
     GITHUB_PRIVATE_KEY_PATH: str = Field(default="")
 
-    # AI Provider
+    # AI Provider Settings (Multi-Provider: OpenAI & Google AI Studio & Nvidia)
+    LLM_PROVIDER: Literal["openai", "google_ai_studio"] = "openai"
     OPENAI_API_KEY: str = Field(default="")
+    GEMINI_API_KEY: str = Field(default="")
+    GEMINI_MODEL: str = "gemini-1.5-pro"
+
+    EMBEDDING_PROVIDER: Literal["openai", "nvidia"] = "openai"
     EMBEDDING_MODEL: str = "text-embedding-3-large"
+    NVIDIA_API_KEY: str = Field(default="")
+    NVIDIA_EMBEDDING_MODEL: str = "nv-embed-v1"
     EMBEDDING_DIMENSIONS: int = 256
     DEFAULT_REASONING_MODEL: str = "gpt-4o"
 
@@ -52,8 +59,11 @@ class Settings(BaseSettings):
         """Enforces fail-closed configuration check in non-development environments."""
         if self.ENVIRONMENT in ("production", "staging"):
             missing = []
-            if not self.OPENAI_API_KEY:
+            if self.LLM_PROVIDER == "openai" and not self.OPENAI_API_KEY:
                 missing.append("OPENAI_API_KEY")
+            if self.LLM_PROVIDER == "google_ai_studio" and not self.GEMINI_API_KEY:
+                missing.append("GEMINI_API_KEY")
+
             dev_secret = "development_webhook_secret_change_me"
             if not self.GITHUB_WEBHOOK_SECRET or self.GITHUB_WEBHOOK_SECRET == dev_secret:
                 missing.append("GITHUB_WEBHOOK_SECRET")
