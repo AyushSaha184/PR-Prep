@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.economics_router import router as economics_router
+from backend.api.governance_router import router as governance_router
 from backend.api.health import router as health_router
 from backend.api.hitl_router import router as hitl_router
 from backend.api.queue import router as queue_router
@@ -50,3 +51,4 @@ app.include_router(hitl_router)
 app.include_router(economics_router)
 app.include_router(queue_router)
 app.include_router(traces_router)
+app.include_router(governance_router)

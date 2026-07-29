@@ -3,10 +3,13 @@ from typing import Any
 
 from fastapi import APIRouter
 
+from backend.economics.cost_repository import CostRepository
 from backend.observability.logging import setup_logger
 
 logger = setup_logger("pr_prep.api.economics")
 router = APIRouter(prefix="/api/economics", tags=["Economics"])
+
+cost_repo = CostRepository()
 
 
 @router.get("/health")
@@ -57,3 +60,11 @@ async def get_pr_costs() -> list[dict[str, Any]]:
             "max_confidence": 0.96,
         }
     ]
+
+
+@router.get("/summary/{repository}")
+async def get_repository_cost_attribution(repository: str) -> dict[str, Any]:
+    """Exposes detailed cost attribution breakdown for a repository."""
+    logger.info(f"Querying cost attribution for repository='{repository}'")
+    summary = cost_repo.get_repository_cost_summary(repository)
+    return summary.model_dump()
