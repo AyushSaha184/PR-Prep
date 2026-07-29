@@ -2,35 +2,66 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:16-alpine
-    container_name: pr_prep_postgres
+    image: pgvector/pgvector:pg16
+    container_name: prprep-postgres
     environment:
-      POSTGRES_DB: pr_prep_dev
-      POSTGRES_USER: pr_prep
-      POSTGRES_PASSWORD: pr_prep_password
+      POSTGRES_DB: prprep_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pr_prep -d pr_prep_dev"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d prprep_dev"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: pr_prep_redis
+    container_name: prprep-redis
     ports:
       - "6379:6379"
-    volumes:
-      - redisdata:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-volumes:
-  pgdata:
-  redisdata:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: prprep-api
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/prprep_dev
+      REDIS_URL: redis://redis:6379/0
+      OPENAI_API_KEY: dev_key_placeholder
+      GITHUB_WEBHOOK_SECRET: dev_secret_placeholder
+      GITHUB_APP_ID: dev_app_id_placeholder
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: prprep-worker
+    command: python3 -m arq backend.job_queue.arq_worker.WorkerSettings
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/prprep_dev
+      REDIS_URL: redis://redis:6379/0
+      OPENAI_API_KEY: dev_key_placeholder
+      GITHUB_WEBHOOK_SECRET: dev_secret_placeholder
+      GITHUB_APP_ID: dev_app_id_placeholder
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

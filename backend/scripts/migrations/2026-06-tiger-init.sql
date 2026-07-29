@@ -1,5 +1,5 @@
 -- Idempotent Tiger Cloud / Postgres Schema Migration
--- Enables pgvector and TimescaleDB extensions, creates code_chunks and repo_file_index tables.
+-- Enables pgvector and TimescaleDB extensions, creates code_chunks, repo_file_index, and continuous aggregates.
 
 CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
@@ -40,3 +40,22 @@ CREATE TABLE IF NOT EXISTS repo_file_index (
     last_indexed_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
     CONSTRAINT repo_file_index_unique UNIQUE (repo, path)
 );
+
+-- Continuous Aggregate Views (Emulated for Standard Postgres / TimescaleDB)
+CREATE OR REPLACE VIEW agent_health_1m AS
+SELECT
+    agent,
+    COUNT(*) AS total_calls,
+    COALESCE(SUM(cost_usd), 0.0) AS total_cost_usd,
+    COALESCE(AVG(latency_ms), 0.0) AS avg_latency_ms,
+    COALESCE(AVG(confidence), 1.0) AS avg_confidence
+FROM code_chunks
+GROUP BY agent;
+
+CREATE OR REPLACE VIEW pr_cost_hourly AS
+SELECT
+    repo,
+    COUNT(*) AS total_chunks,
+    COALESCE(SUM(token_count), 0) AS total_tokens
+FROM code_chunks
+GROUP BY repo;
