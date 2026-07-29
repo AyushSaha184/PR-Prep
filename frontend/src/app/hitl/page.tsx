@@ -1,16 +1,18 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { fetchReviews } from '../../lib/api';
+import { fetchHITLQueue } from '../../lib/api';
 import { ReviewState } from '../../lib/types';
 import { FindingCard } from '../../components/FindingCard';
 import { ApprovalActions } from '../../components/ApprovalActions';
 
 export default function HITLQueuePage() {
   const [items, setItems] = useState<ReviewState[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchReviews().then((all) => {
-      setItems(all.filter((r) => r.status === 'ROUTED_TO_HITL'));
+    fetchHITLQueue().then((data) => {
+      setItems(data);
+      setLoading(false);
     });
   }, []);
 
@@ -23,7 +25,9 @@ export default function HITLQueuePage() {
         </p>
       </div>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-12 text-slate-500 text-xs font-mono">Loading live HITL approval queue...</div>
+      ) : items.length === 0 ? (
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center text-xs text-slate-400 font-mono">
           Queue empty. All automated reviews met auto-post confidence criteria!
         </div>
@@ -37,7 +41,7 @@ export default function HITLQueuePage() {
                     {rev.repository} #PR-{rev.pr_number}
                   </h3>
                   <span className="text-xs text-amber-400 font-mono">
-                    Reason: CRITICAL Finding Detected (Injection Risk)
+                    Reason: CRITICAL Finding Detected or Budget Limit
                   </span>
                 </div>
                 <span className="px-2.5 py-1 rounded bg-amber-950 text-amber-300 text-xs font-bold border border-amber-800">

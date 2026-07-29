@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { fetchReviewById } from '../../../lib/api';
+import { fetchReviewById, fetchGovernanceExplanation } from '../../../lib/api';
 import { ReviewState } from '../../../lib/types';
 import { FindingCard } from '../../../components/FindingCard';
 import { ConfidenceMeter } from '../../../components/ConfidenceMeter';
@@ -9,10 +9,14 @@ import Link from 'next/link';
 
 export default function ReviewDetailPage({ params }: { params: { id: string } }) {
   const [review, setReview] = useState<ReviewState | null>(null);
+  const [explanation, setExplanation] = useState<Record<string, any> | null>(null);
 
   useEffect(() => {
     fetchReviewById(params.id).then((res) => {
       if (res) setReview(res);
+    });
+    fetchGovernanceExplanation(params.id).then((exp) => {
+      setExplanation(exp);
     });
   }, [params.id]);
 
@@ -41,6 +45,32 @@ export default function ReviewDetailPage({ params }: { params: { id: string } })
           {review.routing_decision}
         </div>
       </div>
+
+      {explanation && (
+        <div className="bg-slate-900 border border-indigo-900/60 rounded-xl p-4 space-y-2">
+          <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
+            Governance Decision Evidence Record
+          </div>
+          <div className="text-xs text-slate-300 space-y-1 font-mono">
+            {explanation.why_raised && (
+              <div>
+                <span className="text-slate-500">Why Raised:</span> {explanation.why_raised}
+              </div>
+            )}
+            {explanation.why_routed && (
+              <div>
+                <span className="text-slate-500">Why Routed:</span> {explanation.why_routed}
+              </div>
+            )}
+            {explanation.cited_context_chunk_ids && (
+              <div>
+                <span className="text-slate-500">Cited RAG Chunks:</span>{' '}
+                {JSON.stringify(explanation.cited_context_chunk_ids)}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {review.status === 'ROUTED_TO_HITL' && (
         <div className="space-y-2">
