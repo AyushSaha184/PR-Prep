@@ -10,6 +10,7 @@ from backend.api.health import router as health_router
 from backend.api.hitl_router import router as hitl_router
 from backend.api.queue import router as queue_router
 from backend.api.reviews import router as reviews_router
+from backend.api.traces import router as traces_router
 from backend.core.config import get_settings
 from backend.observability.logging import setup_logger
 from backend.webhook_receiver.router import router as webhook_router
@@ -48,3 +49,4 @@ app.include_router(reviews_router)
 app.include_router(hitl_router)
 app.include_router(economics_router)
 app.include_router(queue_router)
+app.include_router(traces_router)
