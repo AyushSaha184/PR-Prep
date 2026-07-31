@@ -4,12 +4,14 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
+from backend.hitl.state_machine import ConcurrencyError, HITLItem, HITLStateMachine
 from backend.models.enums import ReviewStatus
 from backend.models.review import ReviewState
 from backend.observability.logging import setup_logger
 
 logger = setup_logger("pr_prep.api.hitl")
 router = APIRouter(prefix="/api/hitl", tags=["Human-in-the-Loop"])
+hitl_state_machine = HITLStateMachine()
 
 
 class HITLActionRequest(BaseModel):
@@ -19,10 +21,6 @@ class HITLActionRequest(BaseModel):
     reviewer: str = "human_reviewer"
     comment: str | None = None
     feedback: str | None = None
-
-
-from backend.hitl.state_machine import HITLItem, HITLStateMachine, ConcurrencyError
-hitl_state_machine = HITLStateMachine()
 
 
 @router.get("/queue", response_model=list[ReviewState])

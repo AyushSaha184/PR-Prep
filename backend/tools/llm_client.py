@@ -105,10 +105,14 @@ class LLMClient:
                     parsed_output = response.text
                 tokens_out = len(response.text) // 4
             except Exception as e:
-                logger.warning(f"Google AI Studio API call failed ({e}); using offline structure fallback.")
+                logger.warning(
+                    f"Google AI Studio API call failed ({e}); using offline structure fallback."
+                )
                 tokens_out = 150
         else:
-            logger.info(f"No API key provided for provider '{self.provider}'; running in mock mode.")
+            logger.info(
+                f"No API key provided for provider '{self.provider}'; running in mock mode."
+            )
             tokens_out = 150
 
         latency_ms = int((time.perf_counter() - start_time) * 1000)

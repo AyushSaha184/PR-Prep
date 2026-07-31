@@ -1,8 +1,8 @@
 """ARQ Worker consuming review_job tasks from Redis."""
 from typing import Any
 
-from backend.orchestrator.langgraph_engine import LangGraphEngine
 from backend.observability.logging import setup_logger
+from backend.orchestrator.langgraph_engine import LangGraphEngine
 
 logger = setup_logger("pr_prep.job_queue.arq_worker")
 

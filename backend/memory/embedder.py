@@ -46,20 +46,27 @@ class EmbedderClient:
             try:
                 import httpx
                 url = "https://ai.api.nvidia.com/v1/retrieval/nvidia/embeddings"
-                headers = {"Authorization": f"Bearer {self.nvidia_key}", "Accept": "application/json"}
+                headers = {
+                    "Authorization": f"Bearer {self.nvidia_key}",
+                    "Accept": "application/json",
+                }
                 payload = {"input": [text], "model": self.model, "input_type": "passage"}
                 async with httpx.AsyncClient() as client:
                     resp = await client.post(url, headers=headers, json=payload, timeout=10.0)
                     if resp.status_code == 200:
                         data = resp.json()
                         vector = data["data"][0]["embedding"][:self.dimensions]
-                        logger.info(f"EmbedderClient [nvidia] API vector generated (dim={len(vector)})")
+                        logger.info(
+                            f"EmbedderClient [nvidia] API vector generated (dim={len(vector)})"
+                        )
                         return vector
             except Exception as e:
                 logger.warning(f"Nvidia embedding call failed ({e}); using mock vector.")
 
         vector = self._generate_deterministic_mock_vector(text, self.dimensions)
-        logger.info(f"EmbedderClient [{self.provider}] fallback vector generated (dim={len(vector)})")
+        logger.info(
+            f"EmbedderClient [{self.provider}] fallback vector generated (dim={len(vector)})"
+        )
         return vector
 
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:

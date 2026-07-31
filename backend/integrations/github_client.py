@@ -70,11 +70,13 @@ class GitHubClient:
                             "review_id": data.get("id"),
                             "html_url": data.get("html_url"),
                         }
-                    logger.warning(f"GitHub review post returned HTTP {resp.status_code}: {resp.text}")
+                    logger.warning(
+                        f"GitHub review post returned HTTP {resp.status_code}: {resp.text}"
+                    )
             except Exception as e:
                 logger.error(f"Error posting review to GitHub API: {e}")
 
-        logger.info(f"Development token active; simulating GitHub review post response.")
+        logger.info("Development token active; simulating GitHub review post response.")
         return {
             "status": "success",
             "review_id": 999123,

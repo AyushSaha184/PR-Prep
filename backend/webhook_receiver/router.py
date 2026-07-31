@@ -103,8 +103,10 @@ async def handle_github_webhook(
         logger.warning(
             f"Redis enqueue failed ({e}); dispatching review_job via background task fallback."
         )
-        from backend.job_queue.arq_worker import process_review_job
         import asyncio
+
+        from backend.job_queue.arq_worker import process_review_job
+
         asyncio.create_task(process_review_job({}, job_data))
 
     return {
