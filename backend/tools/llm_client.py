@@ -60,9 +60,58 @@ class LLMClient:
         logger.info(msg)
 
         tokens_in = (len(system_prompt) + len(user_prompt)) // 4
-        tokens_out = 150
-        latency_ms = int((time.perf_counter() - start_time) * 1000)
+        parsed_output: Any = None
+        refusal: str | None = None
 
+        if self.provider == "openai" and self.openai_key:
+            try:
+                import openai
+                client = openai.AsyncOpenAI(api_key=self.openai_key)
+                response = await client.beta.chat.completions.parse(
+                    model=target_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    response_format=response_schema,
+                    timeout=timeout_seconds,
+                )
+                choice = response.choices[0]
+                parsed_output = choice.message.parsed
+                refusal = getattr(choice.message, "refusal", None)
+                if response.usage:
+                    tokens_in = response.usage.prompt_tokens
+                    tokens_out = response.usage.completion_tokens
+                else:
+                    tokens_out = 150
+            except Exception as e:
+                logger.warning(f"OpenAI API call failed ({e}); using offline structure fallback.")
+                tokens_out = 150
+        elif self.provider == "google_ai_studio" and self.gemini_key:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=self.gemini_key)
+                model_inst = genai.GenerativeModel(
+                    model_name=target_model,
+                    system_instruction=system_prompt,
+                )
+                response = await model_inst.generate_content_async(
+                    user_prompt,
+                    generation_config={"response_mime_type": "application/json"},
+                )
+                if hasattr(response_schema, "model_validate_json"):
+                    parsed_output = response_schema.model_validate_json(response.text)
+                else:
+                    parsed_output = response.text
+                tokens_out = len(response.text) // 4
+            except Exception as e:
+                logger.warning(f"Google AI Studio API call failed ({e}); using offline structure fallback.")
+                tokens_out = 150
+        else:
+            logger.info(f"No API key provided for provider '{self.provider}'; running in mock mode.")
+            tokens_out = 150
+
+        latency_ms = int((time.perf_counter() - start_time) * 1000)
         cost_rates = MODEL_COSTS_PER_1K.get(target_model, {"input": 0.005, "output": 0.015})
         cost_usd = round(
             (tokens_in / 1000.0) * cost_rates["input"]
@@ -76,11 +125,12 @@ class LLMClient:
         )
 
         return LLMResponse(
-            parsed_output=None,
+            parsed_output=parsed_output,
             model=target_model,
             provider=self.provider,
             tokens_in=tokens_in,
             tokens_out=tokens_out,
             cost_usd=cost_usd,
             latency_ms=latency_ms,
+            refusal=refusal,
         )

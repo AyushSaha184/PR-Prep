@@ -1,22 +1,22 @@
 """ARQ Worker consuming review_job tasks from Redis."""
 from typing import Any
 
-from backend.core.workflow_engine import InMemoryWorkflowEngine
+from backend.orchestrator.langgraph_engine import LangGraphEngine
 from backend.observability.logging import setup_logger
 
 logger = setup_logger("pr_prep.job_queue.arq_worker")
 
 
 async def process_review_job(ctx: dict[str, Any], job_data: dict[str, Any]) -> dict[str, Any]:
-    """Task handler for review_job execution."""
+    """Task handler for review_job execution using LangGraphEngine."""
     workflow_id = job_data.get("delivery_id", "wf_default")
     repo = job_data.get("repository", "owner/repo")
     pr = job_data.get("pr_number", 0)
 
     logger.info(f"ARQ Worker starting job for {repo}#PR-{pr} (wf={workflow_id})")
 
-    # Workflow execution seam
-    engine = InMemoryWorkflowEngine()
+    # LangGraph workflow orchestration execution
+    engine = LangGraphEngine()
     result = await engine.run(workflow_id, job_data)
 
     status_str = result.get("status")

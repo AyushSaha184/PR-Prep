@@ -15,8 +15,14 @@ router = APIRouter(prefix="/api/hitl", tags=["Human-in-the-Loop"])
 class HITLActionRequest(BaseModel):
     review_id: str
     action: str  # APPROVE, EDIT, REJECT, ESCALATE
+    expected_version: int = 1
     reviewer: str = "human_reviewer"
+    comment: str | None = None
     feedback: str | None = None
+
+
+from backend.hitl.state_machine import HITLItem, HITLStateMachine, ConcurrencyError
+hitl_state_machine = HITLStateMachine()
 
 
 @router.get("/queue", response_model=list[ReviewState])
@@ -42,19 +48,37 @@ async def apply_hitl_action(req: HITLActionRequest) -> dict[str, Any]:
     rev = _MOCK_REVIEWS_STORE[req.review_id]
     logger.info(f"HITL action '{req.action}' applied to review {req.review_id} by {req.reviewer}")
 
-    if req.action == "APPROVE":
-        rev.status = ReviewStatus.COMPLETED
-        rev.routing_decision = f"APPROVED by {req.reviewer}"
-    elif req.action == "REJECT":
-        rev.status = ReviewStatus.FAILED
-        rev.routing_decision = f"REJECTED by {req.reviewer}"
-    elif req.action == "ESCALATE":
-        rev.status = ReviewStatus.ESCALATED
-        rev.routing_decision = f"ESCALATED to security lead by {req.reviewer}"
+    # Register item in state machine if missing
+    if req.review_id not in hitl_state_machine._items:
+        hitl_state_machine.register_item(
+            HITLItem(
+                review_id=req.review_id,
+                repository=rev.repository,
+                pr_number=rev.pr_number,
+                version=1,
+                status=rev.status,
+            )
+        )
+
+    try:
+        updated_item = hitl_state_machine.apply_reviewer_action(
+            review_id=req.review_id,
+            expected_version=req.expected_version,
+            action=req.action,
+            reviewer=req.reviewer,
+            comment=req.comment or req.feedback,
+        )
+        rev.status = updated_item.status
+        rev.routing_decision = f"{req.action} applied by {req.reviewer}"
+    except ConcurrencyError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail=str(e)
+        ) from e
 
     return {
         "status": "success",
         "review_id": req.review_id,
         "action": req.action,
         "new_status": rev.status,
+        "new_version": updated_item.version,
     }

@@ -80,6 +80,33 @@ async def handle_github_webhook(
         f"(delivery_id={delivery_id})"
     )
 
+    job_data = {
+        "delivery_id": delivery_id,
+        "repository": parsed_event.repository,
+        "pr_number": parsed_event.pr_number,
+        "commit_sha": parsed_event.commit_sha,
+        "action": parsed_event.action,
+        "sender": parsed_event.sender,
+    }
+
+    # Attempt Redis ARQ queue dispatch with background task fallback
+    try:
+        from arq import create_pool
+        from arq.connections import RedisSettings
+
+        redis_url = settings.REDIS_URL
+        # Parse host and port from REDIS_URL or default
+        redis = await create_pool(RedisSettings.from_dsn(redis_url))
+        await redis.enqueue_job("process_review_job", job_data)
+        logger.info(f"Successfully enqueued review_job to Redis for delivery_id={delivery_id}")
+    except Exception as e:
+        logger.warning(
+            f"Redis enqueue failed ({e}); dispatching review_job via background task fallback."
+        )
+        from backend.job_queue.arq_worker import process_review_job
+        import asyncio
+        asyncio.create_task(process_review_job({}, job_data))
+
     return {
         "status": "queued",
         "delivery_id": delivery_id,
