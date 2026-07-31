@@ -1,5 +1,6 @@
 """Embedding client generating 256-dimensional vectors using OpenAI or Nvidia NIM."""
 import math
+from typing import cast
 
 from backend.core.config import get_settings
 from backend.observability.logging import setup_logger
@@ -37,7 +38,7 @@ class EmbedderClient:
                     input=text,
                     dimensions=self.dimensions,
                 )
-                vector = res.data[0].embedding
+                vector: list[float] = cast(list[float], res.data[0].embedding)
                 logger.info(f"EmbedderClient [openai] API vector generated (dim={len(vector)})")
                 return vector
             except Exception as e:
@@ -55,7 +56,9 @@ class EmbedderClient:
                     resp = await client.post(url, headers=headers, json=payload, timeout=10.0)
                     if resp.status_code == 200:
                         data = resp.json()
-                        vector = data["data"][0]["embedding"][:self.dimensions]
+                        vector: list[float] = cast(
+                            list[float], data["data"][0]["embedding"][:self.dimensions]
+                        )
                         logger.info(
                             f"EmbedderClient [nvidia] API vector generated (dim={len(vector)})"
                         )
