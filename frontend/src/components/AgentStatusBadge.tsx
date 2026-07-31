@@ -1,18 +1,39 @@
 import React from 'react';
 import { AgentType } from '../lib/types';
 
-const AGENT_COLORS: Record<AgentType, string> = {
-  security: 'bg-red-950 text-red-300 border-red-800',
-  quality: 'bg-blue-950 text-blue-300 border-blue-800',
-  tests: 'bg-purple-950 text-purple-300 border-purple-800',
-  docs: 'bg-emerald-950 text-emerald-300 border-emerald-800',
-  aggregator: 'bg-amber-950 text-amber-300 border-amber-800',
+const AGENT_CONFIG: Record<AgentType, { icon: string; style: string }> = {
+  security: {
+    icon: '🛡️',
+    style: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
+  },
+  quality: {
+    icon: '✨',
+    style: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30',
+  },
+  tests: {
+    icon: '🧪',
+    style: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
+  },
+  docs: {
+    icon: '📚',
+    style: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
+  },
+  aggregator: {
+    icon: '⚖️',
+    style: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30',
+  },
 };
 
 export const AgentStatusBadge: React.FC<{ agent: AgentType }> = ({ agent }) => {
+  const config = AGENT_CONFIG[agent] || AGENT_CONFIG.aggregator;
+
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs border font-medium uppercase ${AGENT_COLORS[agent]}`}>
-      {agent}
+    <span
+      className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-mono border font-semibold uppercase tracking-wider ${config.style}`}
+    >
+      <span>{config.icon}</span>
+      <span>{agent}</span>
     </span>
   );
 };
+
