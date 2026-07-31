@@ -38,7 +38,7 @@ class EmbedderClient:
                     input=text,
                     dimensions=self.dimensions,
                 )
-                vector: list[float] = cast(list[float], res.data[0].embedding)
+                vector = cast(list[float], res.data[0].embedding)
                 logger.info(f"EmbedderClient [openai] API vector generated (dim={len(vector)})")
                 return vector
             except Exception as e:
@@ -56,7 +56,7 @@ class EmbedderClient:
                     resp = await client.post(url, headers=headers, json=payload, timeout=10.0)
                     if resp.status_code == 200:
                         data = resp.json()
-                        vector: list[float] = cast(
+                        vector = cast(
                             list[float], data["data"][0]["embedding"][:self.dimensions]
                         )
                         logger.info(
